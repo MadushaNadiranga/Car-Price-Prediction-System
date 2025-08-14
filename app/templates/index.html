@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PriceMyRide | AI-Powered Car Valuator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    :root {
+      --primary: #D4AF37; /* Gold */
+      --primary-dark: #B38B2D;
+      --primary-light: #F5E6C8; /* Cream */
+      --secondary: #A67C00;
+      --accent: #FFD700;
+      --dark: #121212;
+      --darker: #000000;
+      --light: #1E1E1E;
+      --lighter: #2A2A2A;
+      --gray: #9E9E9E;
+      --light-gray: #424242;
+      --success: #4CAF50;
+      --warning: #FFC107;
+      --danger: #F44336;
+      --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      --input-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --text-primary: #FFFFFF;
+      --text-secondary: #E0E0E0;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* Preloader Styles */
+    .preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--darker);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    
+    .preloader.fade-out {
+      opacity: 0;
+    }
+    
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(212, 175, 55, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      position: relative;
+    }
+    
+    .loader::after {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border: 5px solid transparent;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite;
+    }
+    
+    .loading-text {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: var(--primary);
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      position: relative;
+    }
+    
+    header::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: var(--transition);
+    }
+    
+    .logo:hover .logo-icon {
+      transform: rotate(15deg) scale(1.1);
+    }
+    
+    .logo-icon svg {
+      width: 26px;
+      height: 26px;
+      fill: var(--darker);
+    }
+    
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+    
+    .logo-text span {
+      color: var(--text-primary);
+    }
+    
+    .tagline {
+      color: var(--gray);
+      font-size: 1.1rem;
+      font-weight: 400;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+    
+    .form-container {
+      background-color: var(--lighter);
+      border-radius: var(--border-radius);
+      padding: 2.5rem;
+      box-shadow: var(--card-shadow);
+      border: 1px solid rgba(212, 175, 55, 0.1);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    
+    .form-container::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, rgba(42, 42, 42, 0) 70%);
+      z-index: -1;
+    }
+    
+    .form-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+    
+    .form-title::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 3px;
+    }
+    
+    .form-title svg {
+      width: 28px;
+      height: 28px;
+      margin-right: 12px;
+      fill: var(--primary);
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    label {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--border-radius-sm);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      background-color: var(--light);
+      color: var(--text-primary);
+      appearance: none;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+    
+    input:hover, select:hover {
+      border-color: var(--primary-light);
+    }
+    
+    select {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1em;
+    }
+    
+    button {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: var(--darker);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      padding: 1.25rem 2rem;
+      border: none;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+    
+    button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+    
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(212, 175, 55, 0.5);
+      color: var(--darker);
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button svg {
+      width: 20px;
+      height: 20px;
+      margin-left: 10px;
+      fill: var(--darker);
+      transition: var(--transition);
+    }
+    
+    button:hover svg {
+      transform: translateX(5px);
+    }
+    
+    .results-container {
+      background-color: var(--lighter);
+      border-radius: var(--border-radius);
+      padding: 2.5rem;
+      box-shadow: var(--card-shadow);
+      border: 1px solid rgba(212, 175, 55, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .results-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    
+    .prediction-result {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 2rem 0;
+    }
+    
+    .prediction-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin: 1.5rem 0;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .prediction-value::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
+    
+    .prediction-text {
+      font-size: 1.1rem;
+      color: var(--gray);
+      margin-bottom: 2rem;
+      max-width: 600px;
+    }
+    
+    .confidence-meter {
+      height: 10px;
+      background-color: var(--light-gray);
+      border-radius: 5px;
+      margin: 2rem 0;
+      overflow: hidden;
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    .confidence-level {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      width: 85%;
+      position: relative;
+      animation: progress 1.5s ease-in-out;
+    }
+    
+    @keyframes progress {
+      from { width: 0; }
+      to { width: 85%; }
+    }
+    
+    .confidence-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--gray);
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .confidence-label span:first-child {
+      color: var(--secondary);
+    }
+    
+    .confidence-label span:last-child {
+      color: var(--primary);
+    }
+    
+    .car-images {
+      margin-top: 3rem;
+      position: relative;
+    }
+    
+    .car-images::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--light-gray), transparent);
+    }
+    
+    .car-images-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 2rem 0 1.5rem;
+      display: flex;
+      align-items: center;
+      color: var(--primary);
+    }
+    
+    .car-images-title svg {
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+      fill: var(--primary);
+    }
+    
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .car-image {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: var(--border-radius-sm);
+      transition: var(--transition);
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(212, 175, 55, 0.1);
+    }
+    
+    .car-image:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 15px 20px rgba(0, 0, 0, 0.4);
+      border-color: rgba(212, 175, 55, 0.3);
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .feature-card {
+      background-color: var(--light);
+      border-radius: var(--border-radius-sm);
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: var(--transition);
+      border-left: 4px solid var(--primary);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      background-color: var(--lighter);
+    }
+    
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(212, 175, 55, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    
+    .feature-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--primary);
+    }
+    
+    .feature-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+    
+    .feature-desc {
+      font-size: 0.85rem;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+    
+    .price-trend {
+      margin-top: 3rem;
+      background-color: var(--light);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      border: 1px solid rgba(212, 175, 55, 0.1);
+    }
+    
+    .trend-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .trend-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .trend-period {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .period-btn {
+      padding: 0.5rem 1rem;
+      background-color: var(--lighter);
+      border: none;
+      border-radius: 20px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-secondary);
+    }
+    
+    .period-btn.active {
+      background-color: var(--primary);
+      color: var(--darker);
+      font-weight: 600;
+    }
+    
+    .trend-chart {
+      height: 300px;
+      background-color: var(--lighter);
+      border-radius: var(--border-radius-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .chart-line {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      right: 40px;
+      height: 2px;
+      background-color: var(--primary);
+      opacity: 0.2;
+    }
+    
+    .chart-point {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      transform: translate(-50%, 50%);
+    }
+    
+    .chart-point::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-color: rgba(212, 175, 55, 0.2);
+      border-radius: 50%;
+      top: -3px;
+      left: -3px;
+    }
+    
+    .chart-label {
+      position: absolute;
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+    
+    .chart-value {
+      position: absolute;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    /* Tooltip styles */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: var(--primary);
+      color: var(--darker);
+      text-align: center;
+      border-radius: var(--border-radius-sm);
+      padding: 0.5rem;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: var(--primary) transparent transparent transparent;
+    }
+    
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    /* Floating action button */
+    .fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+      cursor: pointer;
+      z-index: 100;
+      transition: var(--transition);
+    }
+    
+    .fab:hover {
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 15px 30px rgba(212, 175, 55, 0.6);
+    }
+    
+    .fab svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--darker);
+    }
+    
+    /* Footer */
+    footer {
+      margin-top: 5rem;
+      padding: 2rem 0;
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--light-gray);
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .footer-link {
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .footer-link:hover {
+      color: var(--primary);
+    }
+    
+    /* New: Value Breakdown Section */
+    .value-breakdown {
+      margin-top: 3rem;
+      background-color: var(--light);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .breakdown-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+    }
+    
+    .breakdown-title svg {
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+      fill: var(--primary);
+    }
+    
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .breakdown-item:last-child {
+      border-bottom: none;
+    }
+    
+    .breakdown-category {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .breakdown-value {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .breakdown-total {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--primary);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      color: var(--primary);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1.5rem;
+      }
+      
+      .form-container, .results-container {
+        padding: 1.5rem;
+      }
+      
+      .logo-text {
+        font-size: 1.75rem;
+      }
+      
+      .prediction-value {
+        font-size: 2.5rem;
+      }
+      
+      .image-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .footer-links {
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+    }
+    
+    /* Animation for prediction result */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    }
+    
+    /* Floating animation */
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .floating {
+      animation: float 4s ease-in-out infinite;
+    }
+    
+    /* New: Badge for premium feature */
+    .premium-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: var(--darker);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <!-- Preloader -->
+  <div class="preloader">
+    <div class="loader"></div>
+    <div class="loading-text">Loading PriceMyRide</div>
+  </div>
+
+  <div class="container">
+    <header class="animate__animated animate__fadeIn">
+      <div class="logo">
+        <div class="logo-icon floating">
+          <svg viewBox="0 0 24 24">
+            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/>
+            <circle cx="7.5" cy="14.5" r="1.5"/>
+            <circle cx="16.5" cy="14.5" r="1.5"/>
+          </svg>
+        </div>
+        <div class="logo-text">Price<span>MyRide</span></div>
+      </div>
+      <p class="tagline">AI-powered car valuation <br> know your vehicle's true worth in seconds</p>
+    </header>
+    
+    <div class="app-container">
+      <div class="form-container animate__animated animate__fadeInUp">
+        <h2 class="form-title">
+          <svg viewBox="0 0 24 24">
+            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/>
+            <circle cx="7.5" cy="14.5" r="1.5"/>
+            <circle cx="16.5" cy="14.5" r="1.5"/>
+          </svg>
+          Vehicle Details
+        </h2>
+        
+        <form action="{{ url_for('valuation') }}" method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="model">Brand & Model</label>
+              <input type="text" id="model" name="model" required value="{{ prev_input['model'] if prev_input else '' }}" placeholder="e.g. Toyota Camry">
+            </div>
+            
+            <div class="form-group">
+              <label for="year">Model Year</label>
+              <input type="number" id="year" name="year" min="1990" max="2023" required value="{{ prev_input['year'] if prev_input else '' }}" placeholder="e.g. 2020">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="motor_type">Engine Type</label>
+              <select id="motor_type" name="motor_type" required>
+                <option value="petrol" {% if prev_input and prev_input['motor_type'] == 'petrol' %}selected{% endif %}>Petrol</option>
+                <option value="diesel" {% if prev_input and prev_input['motor_type'] == 'diesel' %}selected{% endif %}>Diesel</option>
+                <option value="hybrid" {% if prev_input and prev_input['motor_type'] == 'hybrid' %}selected{% endif %}>Hybrid</option>
+                <option value="electric" {% if prev_input and prev_input['motor_type'] == 'electric' %}selected{% endif %}>Electric</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="motor_volume">Engine Size (L)</label>
+              <input type="number" id="motor_volume" name="motor_volume" step="0.1" min="0.8" max="6.5" required value="{{ prev_input['motor_volume'] if prev_input else '' }}" placeholder="e.g. 2.5">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="running_km">Mileage (km)</label>
+              <input type="number" id="running_km" name="running_km" min="0" max="999999" required value="{{ prev_input['running_km'] if prev_input else '' }}" placeholder="e.g. 45000">
+            </div>
+            
+            <div class="form-group">
+              <label for="status">Condition</label>
+              <select id="status" name="status" required>
+                <option value="excellent" {% if prev_input and prev_input['status'] == 'excellent' %}selected{% endif %}>Excellent</option>
+                <option value="good" {% if prev_input and prev_input['status'] == 'good' %}selected{% endif %}>Good</option>
+                <option value="fair" {% if prev_input and prev_input['status'] == 'fair' %}selected{% endif %}>Fair</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="type">Body Type</label>
+              <select id="type" name="type" required>
+                <option value="sedan" {% if prev_input and prev_input['type'] == 'sedan' %}selected{% endif %}>Sedan</option>
+                <option value="hatchback" {% if prev_input and prev_input['type'] == 'hatchback' %}selected{% endif %}>Hatchback</option>
+                <option value="SUV" {% if prev_input and prev_input['type'] == 'SUV' %}selected{% endif %}>SUV</option>
+                <option value="wagon" {% if prev_input and prev_input['type'] == 'wagon' %}selected{% endif %}>Wagon</option>
+                <option value="coupe" {% if prev_input and prev_input['type'] == 'coupe' %}selected{% endif %}>Coupe</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="color">Color</label>
+              <select id="color" name="color" required>
+                <option value="black" {% if prev_input and prev_input['color'] == 'black' %}selected{% endif %}>Black</option>
+                <option value="white" {% if prev_input and prev_input['color'] == 'white' %}selected{% endif %}>White</option>
+                <option value="blue" {% if prev_input and prev_input['color'] == 'blue' %}selected{% endif %}>Blue</option>
+                <option value="red" {% if prev_input and prev_input['color'] == 'red' %}selected{% endif %}>Red</option>
+                <option value="silver" {% if prev_input and prev_input['color'] == 'silver' %}selected{% endif %}>Silver</option>
+                <option value="other" {% if prev_input and prev_input['color'] == 'other' %}selected{% endif %}>Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="wheel">Steering Wheel</label>
+            <select id="wheel" name="wheel" required>
+              <option value="left" {% if prev_input and prev_input['wheel'] == 'left' %}selected{% endif %}>Left-hand drive</option>
+              <option value="right" {% if prev_input and prev_input['wheel'] == 'right' %}selected{% endif %}>Right-hand drive</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="animate__animated animate__pulse animate__infinite animate__slower">
+            Calculate Value
+            <svg viewBox="0 0 24 24">
+              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+      
+      {% if prediction_text %}
+      <div class="results-container fade-in">
+        <h2 class="form-title">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+          Estimated Value
+        </h2>
+        <div class="prediction-result">
+          <div class="prediction-value">{{ prediction_text }}</div>
+          <p class="prediction-text">Based on current market data and your vehicle specifications. Our algorithm analyzes thousands of data points to provide this accurate valuation.</p>
+          
+          <div class="confidence-meter">
+            <div class="confidence-level"></div>
+          </div>
+          <div class="confidence-label">
+            <span>Low confidence</span>
+            <span>High confidence</span>
+          </div>
+        </div>
+        
+
+        
+        {% if image_urls %}
+        <div class="car-images">
+          <h3 class="car-images-title">
+            <svg viewBox="0 0 24 24">
+              <path d="M8.5 13.5l2.5 3 3.5-4.5 4.5 6H5m16 1V5a2 2 0 00-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2z"/>
+            </svg>
+            Similar Vehicles
+          </h3>
+          <div class="image-grid">
+            {% for img in image_urls %}
+              <img src="{{ img }}" alt="Similar car" class="car-image">
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        
+        <div class="price-trend">
+          <div class="trend-header">
+            <h3 class="trend-title">Price Trend </h3>
+            <div class="trend-period">
+              <button class="period-btn active">1Y</button>
+              <button class="period-btn">3Y</button>
+              <button class="period-btn">5Y</button>
+            </div>
+          </div>
+          <div class="trend-chart">
+            <div class="chart-line"></div>
+            <div class="chart-point" style="left: 10%; bottom: 50%;"></div>
+            <div class="chart-point" style="left: 30%; bottom: 58%;"></div>
+            <div class="chart-point" style="left: 50%; bottom: 60%;"></div>
+            <div class="chart-point" style="left: 70%; bottom: 55%;"></div>
+            <div class="chart-point" style="left: 90%; bottom: 70%;"></div>
+            
+            <div class="chart-label" style="left: 10%; bottom: 10%;">Jan</div>
+            <div class="chart-label" style="left: 30%; bottom: 10%;">Apr</div>
+            <div class="chart-label" style="left: 50%; bottom: 10%;">Jul</div>
+            <div class="chart-label" style="left: 70%; bottom: 10%;">Oct</div>
+            <div class="chart-label" style="left: 90%; bottom: 10%;">Now</div>
+            
+            <div class="chart-value" style="left: 10%; bottom: 50%;">$35K</div>
+            <div class="chart-value" style="left: 30%; bottom: 58%;">$38K</div>
+            <div class="chart-value" style="left: 50%; bottom: 60%;">$40K</div>
+            <div class="chart-value" style="left: 70%; bottom: 55%;">$38K</div>
+            <div class="chart-value" style="left: 90%; bottom: 70%;">{{ prediction_text }}</div>
+          </div>
+        </div>
+        
+        <!-- New: Call to Action Section -->
+        <div class="form-container" style="margin-top: 3rem; text-align: center;">
+          <h3 class="form-title">Want a more detailed valuation?</h3>
+          <p style="margin-bottom: 1.5rem; color: var(--gray);">Get a certified valuation report with full market analysis.</p>
+          <button style="max-width: 300px; margin: 0 auto;">
+            Get Certified Report
+            <svg viewBox="0 0 24 24" style="margin-left: 8px;">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    
+    <footer class="animate__animated animate__fadeIn">
+      <div class="footer-links">
+        <a href="#" class="footer-link">About Us</a>
+        <a href="#" class="footer-link">How It Works</a>
+        <a href="#" class="footer-link">Privacy</a>
+        <a href="#" class="footer-link">Terms</a>
+        <a href="#" class="footer-link">Contact</a>
+      </div>
+      <p>© 2025 PriceMyRide. All rights reserved. Prices are estimates only and not guaranteed.</p>
+    </footer>
+  </div>
+
+  <!-- Floating action button -->
+  <div class="fab animate__animated animate__fadeInUp animate__delay-1s">
+    <svg viewBox="0 0 24 24">
+      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+    </svg>
+  </div>
+
+  <script>
+    // Preloader script
+    window.addEventListener('load', function() {
+      const preloader = document.querySelector('.preloader');
+      setTimeout(function() {
+        preloader.classList.add('fade-out');
+        setTimeout(function() {
+          preloader.style.display = 'none';
+        }, 500);
+      }, 1500); // Show preloader for 1.5 seconds
+    });
+    
+    // Period buttons functionality
+    const periodButtons = document.querySelectorAll('.period-btn');
+    periodButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        periodButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Simulate chart data change
+        const chartPoints = document.querySelectorAll('.chart-point');
+        const chartValues = document.querySelectorAll('.chart-value');
+        
+        if (this.textContent === '3Y') {
+          // Update points for 3Y view
+          chartPoints[0].style.bottom = '25%';
+          chartPoints[1].style.bottom = '40%';
+          chartPoints[2].style.bottom = '30%';
+          chartPoints[3].style.bottom = '50%';
+          chartPoints[4].style.bottom = '20%';
+          
+          // Update values for 3Y view
+          chartValues[0].textContent = '$26K';
+          chartValues[1].textContent = '$28K';
+          chartValues[2].textContent = '$25K';
+          chartValues[3].textContent = '$30K';
+          chartValues[4].textContent = '{{ prediction_text }}';
+        } else if (this.textContent === '5Y') {
+          // Update points for 5Y view
+          chartPoints[0].style.bottom = '15%';
+          chartPoints[1].style.bottom = '25%';
+          chartPoints[2].style.bottom = '40%';
+          chartPoints[3].style.bottom = '30%';
+          chartPoints[4].style.bottom = '20%';
+          
+          // Update values for 5Y view
+          chartValues[0].textContent = '$32K';
+          chartValues[1].textContent = '$28K';
+          chartValues[2].textContent = '$25K';
+          chartValues[3].textContent = '$22K';
+          chartValues[4].textContent = '{{ prediction_text }}';
+        } else {
+          // Reset to 1Y view
+          chartPoints[0].style.bottom = '30%';
+          chartPoints[1].style.bottom = '45%';
+          chartPoints[2].style.bottom = '60%';
+          chartPoints[3].style.bottom = '40%';
+          chartPoints[4].style.bottom = '20%';
+          
+          chartValues[0].textContent = '$24K';
+          chartValues[1].textContent = '$22K';
+          chartValues[2].textContent = '$20K';
+          chartValues[3].textContent = '$21K';
+          chartValues[4].textContent = '{{ prediction_text }}';
+        }
+      });
+    });
+    
+    // FAB click handler
+    const fab = document.querySelector('.fab');
+    fab.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // Show/hide FAB based on scroll position
+    window.addEventListener('scroll', function() {
+      if (window.pageYOffset > 300) {
+        fab.style.display = 'flex';
+      } else {
+        fab.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
